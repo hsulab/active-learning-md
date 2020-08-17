@@ -55,15 +55,14 @@ def run_quip(cutoff=5.0,delta=1.0,n_sparse=100,nlmax=4):
     
     start = time()
            
-    runtraining =  path+"teach_sparse at_file=./train.extxyz  gap={soap  cutoff="+str(cutoff)+"  n_sparse="+str(n_sparse)+"  covariance_type=dot_product sparse_method=cur_points  delta="+str(delta)+"  zeta=4 l_max="+str(nlmax)+"  n_max="+str(nlmax)+"  atom_sigma=0.5  cutoff_transition_width=0.5  add_species} e0={Hf:-2.70516846:O:-0.01277342}  gp_file=gap.xml default_sigma={0.0001 0.0001 0.01 .01} sparse_jitter=1.0e-8 energy_parameter_name=energy"
+    runtraining =  path+"gap_fit_omp at_file=./train.extxyz  gap={soap  cutoff="+str(cutoff)+"  n_sparse="+str(int(n_sparse))+"  covariance_type=dot_product sparse_method=cur_points  delta="+str(int(delta))+"  zeta=4 l_max="+str(int(nlmax))+"  n_max="+str(int(nlmax))+"  atom_sigma=0.5  cutoff_transition_width=0.5  add_species} e0={Hf:-2.70516846:O:-0.01277342}  gp_file=gap.xml default_sigma={0.0001 0.0001 0.01 .01} sparse_jitter=1.0e-8 energy_parameter_name=energy"
     output = subprocess.check_output(runtraining,stderr=subprocess.STDOUT, shell=True)
 
     end = time()
 
     print("\nTraining Completed in {} sec".format(end - start))
 
-
-    evaluate = path+"quip  E=T   atoms_filename=./test.extxyz   param_filename=gap.xml  | grep AT | sed 's/AT//' >> quip_test.xyz" 
+    evaluate = path+"quip_omp E=T   atoms_filename=./test.extxyz   param_filename=gap.xml  | grep AT | sed 's/AT//' >> quip_test.xyz" 
     pout = subprocess.check_output(evaluate,stderr=subprocess.STDOUT, shell=True)
     inp = read('test.extxyz',':')
     inenergy = [ei.get_potential_energy() for ei  in inp ]
@@ -240,8 +239,8 @@ def main():
                    print("\nActive learnied configurations written to 'opt_train.extxyz','opt_test.extxyz' ")
                    break
         else:
-	    print("No new configs found in the {} trial. Skipping!".format(count))
-        count += 1
+            print("No new configs found in the {} trial. Skipping!".format(count))
+            count += 1
         
     plot_metric(track_metric)
 
