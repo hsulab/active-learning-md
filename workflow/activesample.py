@@ -32,13 +32,16 @@ class activesample:
         """
         
         self.exyzfile = exyzfile
+        self.pdbfile = os.path.join(\
+                os.path.dirname(self.exyzfile), \
+                os.path.basename(self.exyzfile).split('.')[0] + '.pdb')
         self.nsample = nsample
         self.nminclust = nminclust
         self.truncate = truncate
         self.exyztrj = read(exyzfile,':')
         if not os.path.isfile(exyzfile.strip('.extxyz') + '.pdb' ):
-            write(exyzfile.strip('.extxyz') +'.pdb', self.exyztrj,format='proteindatabank')
-        self.pdbtrj = md.load_pdb(exyzfile.strip('.extxyz') +'.pdb')
+            write(self.pdbfile, self.exyztrj,format='proteindatabank')
+        self.pdbtrj = md.load_pdb(self.pdbfile)
         self.distances = self.compute_dist()
         self.clustdict = {}
         self.trainlist = []
